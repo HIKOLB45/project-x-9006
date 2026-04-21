@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>3D ENGINEERING VIEW | PROJECT_X</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        body { margin: 0; overflow: hidden; background: #020617; }
+        #canvas-container { width: 100%; height: 100vh; cursor: move; }
+        .ui-overlay {
+            position: absolute; top: 100px; left: 20px;
+            background: rgba(15, 23, 42, 0.8); padding: 20px;
+            border: 1px solid #00f2ff; border-radius: 10px;
+            color: #00f2ff; font-family: 'Orbitron', sans-serif;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-fixed">
+        <div class="logo-text">3D_RENDER // ENGINE</div>
+        <div class="nav-links">
+            <a href="index.html">ГОЛОВНА</a>
+            <a href="details.html">ДЕТАЛІ</a>
+        </div>
+    </nav>
+
+    <div class="ui-overlay">
+        <div>OBJECT: CANOPY_5x4.8</div>
+        <div>SCALE: 1:1 REALTIME</div>
+        <div>STATUS: RENDERING...</div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        // Сцена
+        const scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x020617);
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Світло
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+        scene.add(ambientLight);
+        const pointLight = new THREE.PointLight(0x00f2ff, 1);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+
+        // СТВОРЕННЯ НАВІСУ (Геометрія)
+        const material = new THREE.MeshPhongMaterial({ color: 0x334155, wireframe: false });
+        const frameMaterial = new THREE.MeshPhongMaterial({ color: 0x00f2ff, wireframe: true });
+
+        // 6 Стійок (50х50)
+        const posts = [];
+        const postGeo = new THREE.BoxGeometry(0.1, 2.5, 0.1);
+        for(let i=0; i<6; i++) {
+            posts[i] = new THREE.Mesh(postGeo, material);
+            scene.add(posts[i]);
+        }
+        // Розставляємо стійки (на площі 5х4.8)
+        posts[0].position.set(-2.5, 1.25, -2.4); posts[1].position.set(0, 1.25, -2.4); posts[2].position.set(2.5, 1.25, -2.4);
+        posts[3].position.set(-2.5, 1, 2.4); posts[4].position.set(0, 1, 2.4); posts[5].position.set(2.5, 1, 2.4);
+
+        // Дах (площина)
+        const roofGeo = new THREE.BoxGeometry(5.2, 0.05, 5);
+        const roof = new THREE.Mesh(roofGeo, frameMaterial);
+        roof.position.set(0, 2.6, 0);
+        roof.rotation.x = 0.1; // Нахил 6 градусів
+        scene.add(roof);
+
+        // Сітка підлоги
+        const grid = new THREE.GridHelper(20, 20, 0x00f2ff, 0x1e293b);
+        scene.add(grid);
+
+        camera.position.set(7, 5, 7);
+        camera.lookAt(0, 0, 0);
+
+        // Анімація та обертання
+        function animate() {
+            requestAnimationFrame(animate);
+            scene.rotation.y += 0.005; // Повільне обертання
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Адаптація вікна
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+</body>
+</html>
